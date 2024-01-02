@@ -44,6 +44,9 @@ fan_s *fan_init(unsigned pwm_pin, unsigned pwm_low, unsigned pwm_high, unsigned 
 		softPwmCreate(pwm_pin, 0, pwm_soft);
 	} else {
 		pinMode(pwm_pin, PWM_OUTPUT);
+		pwmSetMode(PWM_MODE_MS); // Use mark-space mode to avoid "smoothing" the pulses
+		pwmSetClock( 6 );     //
+		pwmSetRange( 135 );   // These two values set the PWM frequency to 25.00KHz
 	}
 #	endif
 
