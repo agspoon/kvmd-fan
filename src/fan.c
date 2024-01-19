@@ -45,8 +45,28 @@ fan_s *fan_init(unsigned pwm_pin, unsigned pwm_low, unsigned pwm_high, unsigned 
 	} else {
 		pinMode(pwm_pin, PWM_OUTPUT);
 		pwmSetMode(PWM_MODE_MS); // Use mark-space mode to avoid "smoothing" the pulses
-		pwmSetClock( 6 );     //
-		pwmSetRange( 135 );   // These two values set the PWM frequency to 25.00KHz
+
+        // The values required here depend on the oscillator frequency of the RPi you are using.
+        //     cat /sys/kernel/debug/clk/clk_summary | grep "osc"
+        //
+        // Values for boards with 54MHz oscillator (RPi-4b). The wiringpi library uses the integer
+        // conversion formula (540*divisor/192) to scale the 54MHz clock on a RPi-4b to
+        // the same value as the 19.2MHz clock on earlier models.
+        // (540*6/192) = 16 (with integer math), so to get 25KHz the range must be 135.
+        // (54000000/16/135) = 25000  (freq = clock/divisor/range)
+		pwmSetClock( 6 );
+		pwmSetRange( 135 ); // also set "--pwm-high=135" in /etc/conf.d/kvmd-fan
+        // or if you need more steps
+		// pwmSetClock( 3 );
+		// pwmSetRange( 270 ); // also set "--pwm-high=270" in /etc/conf.d/kvmd-fan
+
+        // For a RPi with a 19.2MHz oscillator.
+		// pwmSetClock( 4 );
+		// pwmSetRange( 192 ); // also set "--pwm-high=192" in /etc/conf.d/kvmd-fan
+        //   or
+		// pwmSetClock( 8 );
+		// pwmSetRange( 96 ); // also set "--pwm-high=96" in /etc/conf.d/kvmd-fan
+      
 	}
 #	endif
 
